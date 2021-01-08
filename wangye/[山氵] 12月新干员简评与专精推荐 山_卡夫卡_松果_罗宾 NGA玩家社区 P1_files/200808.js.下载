@@ -1,0 +1,26 @@
+(function () {
+  var bg_data = [{"pid":"200808","hiturl":"https://g1.tagtic.cn/don/cl?encode_nyg=cmVxaWQ9RGhNVThEYXRubG9xYjYtVnhDOGUwJmNvbz0wMjIwMWEwMmVhNDdiMDg5ZjRlYjVmYjZmZGY2OWE4NDZlMmI4ODgzNTBkYTRlMWRhNWVhNDUxOTJkZjg4MGRlJm9zPTMmcmVmPWh0dHBzJTNBJTJGJTJGYmJzLm5nYS5jbiUyRiZhZHZlcnVzZXJpZD00MyZvcmRlcmlkPTYwMzUmYWlkPXVkYWI2OTJiYTdjYTg4ZmE2ZSZwcm92aW5jZUlkPTE3JnBheW1lbnQ9Y3BtJmFkX2Zyb209MSZwb3NpdGlvbj0xNzAyJnc9MCZoPTAmY29zdD0wJmNvZWZmaWNpZW50PTAmc2xvdEJpbmRpbmc9c2luZ2xlJmNvbXBhcmVfYnVja2V0X2lkPWEmdHJhZmZpY19idWNrZXRfaWQ9cDM1Mjc4JmlzVW5pb249MiZuZXh0dXJsPXVuZGVmaW5lZA&v_y=d932c86e731e942a31e76cf9c2fdf6a032520e3b0b7019808044b687a7a6f4fe","wnUrl":"https://g1.tagtic.cn/don/wn?encode_nyg=cmVxaWQ9RGhNVThEYXRubG9xYjYtVnhDOGUwJmNvbz0wMjIwMWEwMmVhNDdiMDg5ZjRlYjVmYjZmZGY2OWE4NDZlMmI4ODgzNTBkYTRlMWRhNWVhNDUxOTJkZjg4MGRlJm9zPTMmcmVmPWh0dHBzJTNBJTJGJTJGYmJzLm5nYS5jbiUyRiZhZHZlcnVzZXJpZD00MyZvcmRlcmlkPTYwMzUmYWlkPXVkYWI2OTJiYTdjYTg4ZmE2ZSZwcm92aW5jZUlkPTE3JnBheW1lbnQ9Y3BtJmFkX2Zyb209MSZwb3NpdGlvbj0xNzAyJnc9MCZoPTAmY29zdD0wJmNvZWZmaWNpZW50PTAmc2xvdEJpbmRpbmc9c2luZ2xlJmNvbXBhcmVfYnVja2V0X2lkPWEmdHJhZmZpY19idWNrZXRfaWQ9cDM1Mjc4JmlzVW5pb249Mg&v_y=dce64fbe73aa52f3fdcba08d5ba0b25633b93326da582fe0069b4865926a3e8c&","box":"","tid":0,"width":970,"height":90,"weight":-1700,"time":5,"IsUnion":2,"type":1}];
+  if (bg_data.length > 0) {
+    var ref = bg_data[0].box.substring(bg_data[0].box.lastIndexOf('/'), bg_data[0].box.lastIndexOf('.'));
+    ngaAds.push({
+      "id": "bbs_ads50",
+      "isUnion": "" + bg_data[0].IsUnion + "",
+      "file": "" + bg_data[0].box + "",
+      "url": "" + bg_data[0].hiturl + "",
+      "title": "",
+      "width": "" + bg_data[0].width + "",
+      "height": "" + bg_data[0].height + "",
+      "date": "all",
+      "rate": "100",
+      "nolog": "1",
+      "type": "" + bg_data[0].type + "",
+      "sgid": bg_data[0].pid,
+      "refreshid": "" + ref + "",
+      "onload": function () {
+        var x = document.createElement("script");
+        x.src = bg_data[0].wnUrl;
+        document.getElementsByTagName("head")[0].appendChild(x);
+      }
+    });
+  }
+})();

@@ -1,0 +1,26 @@
+(function () {
+  var bg_data = [{"pid":"718","hiturl":"https://g1.tagtic.cn/don/cl?encode_nyg=cmVxaWQ9NndTR0pxWjZNNjRSSmJqYXdTMVJaJmNvbz0wMjIwMWEwMmVhNDdiMDg5ZjRlYjVmYjZmZGY2OWE4NDZlMmI4ODgzNTBkYTRlMWRhNWVhNDUxOTJkZjg4MGRlJm9zPTMmcmVmPWh0dHBzJTNBJTJGJTJGYmJzLm5nYS5jbiUyRiZhZHZlcnVzZXJpZD02MzQmb3JkZXJpZD01ODM2JmFpZD05MTQzJnByb3ZpbmNlSWQ9MTcmcGF5bWVudD1jcHQmYWRfZnJvbT0wJm1pZD05MTQzMSZncm91cF9pZD05MTQzMSZwb3NpdGlvbj02NjUmdz0xMjAmaD0yNDAmY29zdD0xMDAmY29lZmZpY2llbnQ9MSZzbG90QmluZGluZz1zaW5nbGUmY29tcGFyZV9idWNrZXRfaWQ9YSZ0cmFmZmljX2J1Y2tldF9pZD1wMzMyMTQmaXNVbmlvbj0xJm5leHR1cmw9aHR0cCUzQSUyRiUyRmNoNjc4Lnd4LjExaDUuY29tJTJGJTNGY2hpZCUzRDY3OCUyNmdhbWVpZCUzRDgxMyUyNnRyaWFsJTNEMQ&v_y=f29442ba99d5dfe1a898e91c628422b4ffb9158fc3abe8873e94a517acd20732","wnUrl":"https://g1.tagtic.cn/don/wn?encode_nyg=cmVxaWQ9NndTR0pxWjZNNjRSSmJqYXdTMVJaJmNvbz0wMjIwMWEwMmVhNDdiMDg5ZjRlYjVmYjZmZGY2OWE4NDZlMmI4ODgzNTBkYTRlMWRhNWVhNDUxOTJkZjg4MGRlJm9zPTMmcmVmPWh0dHBzJTNBJTJGJTJGYmJzLm5nYS5jbiUyRiZhZHZlcnVzZXJpZD02MzQmb3JkZXJpZD01ODM2JmFpZD05MTQzJnByb3ZpbmNlSWQ9MTcmcGF5bWVudD1jcHQmYWRfZnJvbT0wJm1pZD05MTQzMSZncm91cF9pZD05MTQzMSZwb3NpdGlvbj02NjUmdz0xMjAmaD0yNDAmY29zdD0xMDAmY29lZmZpY2llbnQ9MSZzbG90QmluZGluZz1zaW5nbGUmY29tcGFyZV9idWNrZXRfaWQ9YSZ0cmFmZmljX2J1Y2tldF9pZD1wMzMyMTQmaXNVbmlvbj0x&v_y=e09b185ff494a704ff8866e4e2245e8af80f305582d45f63e762490d3133400c&","box":"https://ad-static-xg.tagtic.cn/ad-material/images/ZXakiu7WaXoePvjIN0vMFP3Dl3VZjGHfdFhPprG7.gif","txt":"","tid":1,"width":120,"height":240,"weight":1005.0247192382812,"time":10,"IsUnion":1,"type":0}];
+  if (bg_data.length > 0) {
+    var ref = bg_data[0].box.substring(bg_data[0].box.lastIndexOf('/'), bg_data[0].box.lastIndexOf('.'));
+    ngaAds.push({
+      "id": "bbs_ads22",
+      "isUnion": "" + bg_data[0].IsUnion + "",
+      "file": "" + bg_data[0].box + "",
+      "url": "" + bg_data[0].hiturl + "",
+      "title": "",
+      "width": "" + bg_data[0].width + "",
+      "height": "" + bg_data[0].height + "",
+      "date": "all",
+      "rate": "100",
+      "nolog": "1",
+      "type": "" + bg_data[0].type + "",
+      "sgid": bg_data[0].pid,
+      "refreshid": "" + ref + "",
+      "onload": function () {
+        var x = document.createElement("script");
+        x.src = bg_data[0].wnUrl;
+        document.getElementsByTagName("head")[0].appendChild(x);
+      }
+    });
+  }
+})();
