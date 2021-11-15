@@ -1,0 +1,296 @@
+sma
+# 导入函数库
+from jqdata import *
+
+# 初始化函数，设定基准等等
+def initialize(context):
+    # 设定沪深300作为基准
+    set_benchmark('000300.XSHG')
+    # 开启动态复权模式(真实价格)
+    set_option('use_real_price', True)
+    # 输出内容到日志 log.info()
+    log.info('初始函数开始运行且全局只运行一次')
+    # 过滤掉order系列API产生的比error级别低的log
+    # log.set_level('order', 'error')
+
+    ### 股票相关设定 ###
+    # 股票类每笔交易时的手续费是：买入时佣金万分之三，卖出时佣金万分之三加千分之一印花税, 每笔交易佣金最低扣5块钱
+    set_order_cost(OrderCost(close_tax=0.001, open_commission=0.0003, close_commission=0.0003, min_commission=5), type='stock')
+
+    ## 运行函数（reference_security为运行时间的参考标的；传入的标的只做种类区分，因此传入'000300.XSHG'或'510300.XSHG'是一样的）
+      # 开盘前运行
+    run_daily(before_market_open, time='before_open', reference_security='000300.XSHG')
+      # 开盘时运行
+    run_daily(market_open, time='open', reference_security='000300.XSHG')
+      # 收盘后运行
+    run_daily(after_market_close, time='after_close', reference_security='000300.XSHG')
+
+## 开盘前运行函数
+def before_market_open(context):
+    # 输出运行时间
+    log.info('函数运行时间(before_market_open)：'+str(context.current_dt.time()))
+
+    # 给微信发送消息（添加模拟交易，并绑定微信生效）
+    # send_message('美好的一天~')
+
+    # 要操作的股票：平安银行（g.为全局变量）
+    g.security = '000001.XSHE'
+
+## 开盘时运行函数
+def market_open(context):
+    log.info('函数运行时间(market_open):'+str(context.current_dt.time()))
+    security = g.security
+    # 获取股票的收盘价
+    close_data = get_bars(security, count=42, unit='1d', fields=['close'])
+    # 取得过去五天的平均价格
+    SMA42 = close_data['close'].mean()
+    SMA21 = close_data['close'][-21:].mean()
+    SMA5 = close_data['close'][-5:].mean()
+    # 取得上一时间点价格
+    current_price = close_data['close'][-1]
+    # 取得当前的现金
+    cash = context.portfolio.available_cash
+
+    # 如果上一时间点价格高出五天平均价1%, 则全仓买入
+    if (SMA5 > SMA21) and (cash > 0):
+        # 记录这次买入
+        log.info("金叉，买入 %s" % (security))
+        log.info("金叉，现金有 %d" % (cash))
+        # 用所有 cash 买入股票
+        order_value(security, cash)
+    # 如果上一时间点价格低于五天平均价, 则空仓卖出
+    elif (SMA5 < SMA21) and context.portfolio.positions[security].closeable_amount > 0:
+        # 记录这次卖出
+        log.info("死叉, 卖出 %s" % (security))
+        # 卖出所有股票,使这只股票的最终持有量为0
+        order_target(security, 0)
+
+## 收盘后运行函数
+def after_market_close(context):
+    log.info(str('函数运行时间(after_market_close):'+str(context.current_dt.time())))
+    #得到当天所有成交记录
+    trades = get_trades()
+    for _trade in trades.values():
+        log.info('成交记录：'+str(_trade))
+    log.info('一天结束')
+    log.info('##############################################################')
+
+# 导入函数库
+from jqdata import *
+import statsmodels.formula.api as sm
+import statsmodels.api as sm
+# 初始化函数，设定基准等等
+def initialize(context):
+    # 设定沪深300作为基准
+    set_benchmark('000300.XSHG')
+    # 开启动态复权模式(真实价格)
+    set_option('use_real_price', True)
+    # 输出内容到日志 log.info()
+    log.info('初始函数开始运行且全局只运行一次')
+    # 过滤掉order系列API产生的比error级别低的log
+    # log.set_level('order', 'error')
+
+    ### 股票相关设定 ###
+    # 股票类每笔交易时的手续费是：买入时佣金万分之三，卖出时佣金万分之三加千分之一印花税, 每笔交易佣金最低扣5块钱
+    set_order_cost(OrderCost(close_tax=0.001, open_commission=0.0003, close_commission=0.0003, min_commission=5), type='stock')
+
+    ## 运行函数（reference_security为运行时间的参考标的；传入的标的只做种类区分，因此传入'000300.XSHG'或'510300.XSHG'是一样的）
+      # 开盘前运行
+    run_daily(before_market_open, time='before_open', reference_security='000300.XSHG')
+      # 开盘时运行
+    run_daily(market_open, time='open', reference_security='000300.XSHG')
+      # 收盘后运行
+    run_daily(after_market_close, time='after_close', reference_security='000300.XSHG')
+
+    g.N = 18
+    g.security = '000300.XSHG'
+    g.buy_beta = 1
+    g.sell_beta = 0.8
+
+## 开盘前运行函数
+def before_market_open(context):
+    # 输出运行时间
+    log.info('函数运行时间(before_market_open)：'+str(context.current_dt.time()))
+
+## 开盘时运行函数
+def market_open(context):
+    log.info('函数运行时间(market_open):'+str(context.current_dt.time()))
+    security = g.security
+    cash = context.portfolio.available_cash
+    
+    # 获取股票的收盘价
+    df = get_price(security, count=g.N, 
+        end_date=context.current_dt.strftime(format='%Y-%m-%d'),
+        frequency='1d', fields=['high','low'])
+    #result = sm.ols(formula="high ~ low", data=df).fit()
+    result = sm.OLS(df['high'],sm.add_constant(df['low'])).fit()
+
+
+    beta = result.params.low
+    log.info(beta)
+    
+    if (beta >= g.buy_beta) and (cash > 0):
+        log.info('buy when beta is', beta)
+        order_value(security, cash)
+    elif (beta <= g.sell_beta) and (context.portfolio.positions[security].closeable_amount > 0):
+        log.info('sell when beta is', beta)
+        order_target(security, 0)
+    #log.info(result.params.low)
+    '''
+    df = [get_price(ticker, count = 12, 
+        end_date=context.current_dt.strftime(format='%Y-%m-%d'), 
+        frequency='21d', fields=['close']).values for ticker in stock_pool]
+    ret1y = [(series[-1]/series[0])[0] for series in df]
+    ret6m = [(series[-1]/series[-7])[0] for series in df]
+    ret3m = [(series[-1]/series[-4])[0] for series in df]
+    ret1m = [(series[-1]/series[-2])[0] for series in df]
+    df = pd.DataFrame(
+        {
+            'ret1y':ret1y,
+            'ret6m':ret6m,
+            'ret3m':ret3m,
+            'ret1m':ret1m
+            }, index=stock_pool
+            )
+    df = df.rank().mean(axis=1).sort_values(ascending=True)
+    buylist=list(df[:g.stock_num].index)
+    log.info(buylist)
+    
+    # 对于每个当下持有的股票进行判断：现在是否已经不在buylist里，如果是则卖出
+    for stock in context.portfolio.positions:
+        if stock not in buylist: #如果stock不在buylist
+            stockvalue = context.portfolio.positions[stock].value
+            log.info('卖出了股票：',stock,'卖出价值：',stockvalue)
+            order_target(stock, 0) #调整stock的持仓为0，即卖出
+
+
+    # 代码：买入要买入的股票，买入金额为可用资金的stocksnum分之一
+    # 将资金分成g.stocksnum份
+    position_per_stk = context.portfolio.total_value/g.stock_num
+    # 用position_per_stk大小的g.stocksnum份资金去买buylist中的股票
+    for stock in buylist:
+        order_target_value(stock, position_per_stk)
+    '''
+    
+## 收盘后运行函数
+def after_market_close(context):
+    log.info(str('函数运行时间(after_market_close):'+str(context.current_dt.time())))
+    #得到当天所有成交记录
+    trades = get_trades()
+    for _trade in trades.values():
+        log.info('成交记录：'+str(_trade))
+    log.info('一天结束')
+    log.info('##############################################################')
+
+RSRS_standardized
+# 导入函数库
+from jqdata import *
+import statsmodels.formula.api as sm
+
+# 初始化函数，设定基准等等
+def initialize(context):
+    # 设定沪深300作为基准
+    set_benchmark('000300.XSHG')
+    # 开启动态复权模式(真实价格)
+    set_option('use_real_price', True)
+    # 输出内容到日志 log.info()
+    log.info('初始函数开始运行且全局只运行一次')
+    # 过滤掉order系列API产生的比error级别低的log
+    # log.set_level('order', 'error')
+
+    ### 股票相关设定 ###
+    # 股票类每笔交易时的手续费是：买入时佣金万分之三，卖出时佣金万分之三加千分之一印花税, 每笔交易佣金最低扣5块钱
+    set_order_cost(OrderCost(close_tax=0.001, open_commission=0.0003, close_commission=0.0003, min_commission=5), type='stock')
+
+    ## 运行函数（reference_security为运行时间的参考标的；传入的标的只做种类区分，因此传入'000300.XSHG'或'510300.XSHG'是一样的）
+      # 开盘前运行
+    run_daily(before_market_open, time='before_open', reference_security='000300.XSHG')
+      # 开盘时运行
+    run_daily(market_open, time='open', reference_security='000300.XSHG')
+      # 收盘后运行
+    run_daily(after_market_close, time='after_close', reference_security='000300.XSHG')
+
+    g.M = 600
+    g.N = 18
+    g.security = '000300.XSHG'
+    g.buy_beta = 0.7
+    g.sell_beta = -0.7
+
+## 开盘前运行函数
+def before_market_open(context):
+    # 输出运行时间
+    pass
+    #log.info('函数运行时间(before_market_open)：'+str(context.current_dt.time()))
+
+## 开盘时运行函数
+def market_open(context):
+    #log.info('函数运行时间(market_open):'+str(context.current_dt.time()))
+    security = g.security
+    cash = context.portfolio.available_cash
+    N, M = g.N, g.M
+    # 获取股票的收盘价
+    df = get_price(security, count=g.M, 
+        end_date=context.current_dt.strftime(format='%Y-%m-%d'),
+        frequency='1d', fields=['high','low'])
+    
+    result = [sm.ols(formula="high ~ low", data=df.iloc[i-N:i]).fit().params.low
+            for i in range(N,M+1,1)]
+    mu = np.mean(result)
+    vol = np.std(result)
+    beta = (result[-1] - mu)/vol
+    #beta = result.params.low
+    log.info(beta)
+    
+    if (beta >= g.buy_beta) and (cash > 0):
+        log.info('buy when beta is', beta)
+        order_value(security, cash)
+    elif (beta <= g.sell_beta) and (context.portfolio.positions[security].closeable_amount > 0):
+        log.info('sell when beta is', beta)
+        order_target(security, 0)
+    #log.info(result.params.low)
+    
+    '''
+    df = [get_price(ticker, count = 12, 
+        end_date=context.current_dt.strftime(format='%Y-%m-%d'), 
+        frequency='21d', fields=['close']).values for ticker in stock_pool]
+    ret1y = [(series[-1]/series[0])[0] for series in df]
+    ret6m = [(series[-1]/series[-7])[0] for series in df]
+    ret3m = [(series[-1]/series[-4])[0] for series in df]
+    ret1m = [(series[-1]/series[-2])[0] for series in df]
+    df = pd.DataFrame(
+        {
+            'ret1y':ret1y,
+            'ret6m':ret6m,
+            'ret3m':ret3m,
+            'ret1m':ret1m
+            }, index=stock_pool
+            )
+    df = df.rank().mean(axis=1).sort_values(ascending=True)
+    buylist=list(df[:g.stock_num].index)
+    log.info(buylist)
+    
+    # 对于每个当下持有的股票进行判断：现在是否已经不在buylist里，如果是则卖出
+    for stock in context.portfolio.positions:
+        if stock not in buylist: #如果stock不在buylist
+            stockvalue = context.portfolio.positions[stock].value
+            log.info('卖出了股票：',stock,'卖出价值：',stockvalue)
+            order_target(stock, 0) #调整stock的持仓为0，即卖出
+
+
+    # 代码：买入要买入的股票，买入金额为可用资金的stocksnum分之一
+    # 将资金分成g.stocksnum份
+    position_per_stk = context.portfolio.total_value/g.stock_num
+    # 用position_per_stk大小的g.stocksnum份资金去买buylist中的股票
+    for stock in buylist:
+        order_target_value(stock, position_per_stk)
+    '''
+    
+## 收盘后运行函数
+def after_market_close(context):
+    #log.info(str('函数运行时间(after_market_close):'+str(context.current_dt.time())))
+    #得到当天所有成交记录
+    trades = get_trades()
+    for _trade in trades.values():
+        log.info('成交记录：'+str(_trade))
+    log.info('一天结束')
+    log.info('##############################################################')
