@@ -1,0 +1,59 @@
+import sqlite3
+import pandas as pd
+from contextlib import closing
+
+
+# connect to database
+db_loc = r"C:\Users\dwjus\2022\PassiveIncome.db"
+connection = sqlite3.connect(db_loc)
+cursor = connection.cursor()
+connection.commit()
+connection.close()
+
+
+# create table - simple
+"""
+CREATE TABLE StrategyRef
+(strategy_id INT, name VARCHAR(20))
+"""
+
+
+# insert values
+"""
+INSERT INTO StrategyRef
+VALUES
+(1, 'stock'),
+(2, 'covered call')
+"""
+
+
+# pandas sql
+target = 'covered call'
+rows2 = cursor.execute("SELECT * FROM StrategyRef WHERE name = ?", (target,)).fetchall()
+
+pd.read_sql_query("SELECT * FROM Orders", connection)
+
+# parameters
+# read_sql_query params: https://stackoverflow.com/questions/45343175/python-3-sqlite-parameterized-sql-query
+# string concat & format
+# multiline string format: https://stackoverflow.com/questions/10985603/multi-line-string-with-arguments-how-to-declare
+
+# relational table
+"""
+CREATE TABLE Orders
+(order_id INT PRIMARY KEY, timestamp datetime, strategy_id,
+FOREIGN KEY (strategy_id) REFERENCES StrategyRef (strategy_id))
+"""
+
+"""
+INSERT INTO Orders
+VALUES
+(1, "2022-01-01", 1),
+(2, "2022-01-02", 1),
+(3, "2022-01-03", 1)
+"""
+
+"""
+SELECT * FROM Orders a
+LEFT JOIN StrategyRef b on a.strategy_id = b.strategy_id
+"""
