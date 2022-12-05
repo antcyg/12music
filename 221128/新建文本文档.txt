@@ -57,3 +57,33 @@ VALUES
 SELECT * FROM Orders a
 LEFT JOIN StrategyRef b on a.strategy_id = b.strategy_id
 """
+
+sql_core = SqliteCore('test.db')
+sql_core.creat_table('instrument', [
+    'instrument_id int primary key not null',
+    'description text not null',
+    'ticker text not null',
+    'maturity datetime',
+    'strike real',
+    'option_type text'
+])
+
+instrument_data = pd.DataFrame({
+    'instrument_id': 1,
+    'description': 'AAPL_stock',
+    'ticker': 'AAPL',
+}, index=[0])
+instrument_data.to_sql('instrument', con=sql_core.connection, if_exists='append', index=False)
+
+class SqliteCore(object):
+    def __init__(self, db_path):
+        self.connection = sqlite3.connect(db_path)
+        
+    def creat_table(self, table_name, para_list):
+        sql_cmd = 'CREATE TABLE IF NOT EXISTS {}('.format(table_name)
+        for idx in range(len(para_list) - 1):
+            para_list[idx] += ','
+        for para in para_list:
+            sql_cmd += para
+        sql_cmd += ')'
+        self.connection.execute(sql_cmd)
