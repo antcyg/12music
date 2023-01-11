@@ -86,4 +86,15 @@ class SqliteCore(object):
         for para in para_list:
             sql_cmd += para
         sql_cmd += ')'
-        self.connection.execute(sql_cmd)
+        self.connection.execute(sql_cmd)、
+
+
+
+请叫我刁奋进:
+1. 买回阿里巴巴 C100 卖出C110 30-45天到期
+
+请叫我刁奋进:
+2. bear call: QQQ 如果情况合适
+
+请叫我刁奋进:
+3. 我们下次讲EWMA 半衰期 我一会儿发推导 你看懂就行
