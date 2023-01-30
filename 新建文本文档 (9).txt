@@ -1,5 +1,0 @@
-Transpose matrix
-Inner & outer products
-Inverse matrices
-Orthogonal matrices
-Linear independence of vectors
