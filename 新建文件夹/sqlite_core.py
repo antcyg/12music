@@ -59,3 +59,15 @@ class SqliteCore(object):
             target_col: 要查询的列名
         """
         return pd.read_sql('select {0} from {1}'.format(target_col, table_name), self.connection)[target_col].to_list()
+
+    def query_row_by_single_condition(self, table_name, condition_col, condition_value):
+        res = pd.read_sql('select * from {} where {}={}'.format(table_name, condition_col, condition_value),
+                          self.connection)
+        return res
+
+    def get_foreign_key(self, input_value, foreign_key_table=None, input_col=None, foreign_key_col=None, cache=None):
+        if cache is not None:
+            return int(cache[cache[input_col] == input_value][foreign_key_col])
+        else:
+            # todo:没有cache的情况
+            pass
