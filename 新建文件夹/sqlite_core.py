@@ -65,6 +65,16 @@ class SqliteCore(object):
                           self.connection)
         return res
 
+    def query_row_by_several_condition(self, table_name, condition_dict):
+        cmd = 'select * from {} where'.format(table_name)
+        for condition_col, condition_value in condition_dict.items():
+            condition_value = "'{}'".format(condition_value) if isinstance(condition_value, str) \
+                else condition_value
+            cmd += ' {} = {} and'.format(condition_col, condition_value)
+        cmd = cmd.rstrip(' and')
+        res = pd.read_sql(cmd, self.connection)
+        return res
+
     def get_foreign_key(self, input_value, foreign_key_table=None, input_col=None, foreign_key_col=None, cache=None):
         if cache is not None:
             return int(cache[cache[input_col] == input_value][foreign_key_col])
